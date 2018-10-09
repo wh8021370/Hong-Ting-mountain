@@ -13,6 +13,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,62 +34,14 @@ import java.util.Map;
 public class XmlUtils {
 
     public static void main(String[] args) {
-
-        String xml = "<xmlData>\n" +
-                "  <taskId>1272522</taskId>\n" +
-                "  <relcurrentnode/>\n" +
-                "  <bh>TCR-v1-2018</bh>\n" +
-                "  <gqybgtzh/>\n" +
-                "  <tcrbh>TCR-GM-20180918-0602</tcrbh>\n" +
-                "  <processApplicant>11</processApplicant>\n" +
-                "  <dh>18130621222</dh>\n" +
-                "  <modelCode/>\n" +
-                "  <lcfqsj>2018-09-18</lcfqsj>\n" +
-                "  <processApplyDept>2</processApplyDept>\n" +
-                "  <bgjd>XMJD</bgjd>\n" +
-                "  <yylx>01</yylx>\n" +
-                "  <wtyzx/>\n" +
-                "  <wtlx>ysdmbg</wtlx>\n" +
-                "  <sfyxshj>Y</sfyxshj>\n" +
-                "  <emergencyDegree>emergency</emergencyDegree>\n" +
-                "  <wtms>fds</wtms>\n" +
-                "  <yyfx>df</yyfx>\n" +
-                "  <jyggfa>dsf</jyggfa>\n" +
-                "  <fileLocation/>\n" +
-                "  <sjbgrwzp index=\"0\">\n" +
-                "    <date/>\n" +
-                "    <isAgree/>\n" +
-                "    <xm>11</xm>\n" +
-                "    <backDate/>\n" +
-                "    <remark/>\n" +
-                "    <bm>2</bm>\n" +
-                "    <bm_name>测试部</bm_name>\n" +
-                "    <xm_name>小五</xm_name>\n" +
-                "    <opinion/>\n" +
-                "  </sjbgrwzp>\n" +
-                "  <kjsqsp index=\"1\">\n" +
-                "    <date/>\n" +
-                "    <isAgree/>\n" +
-                "    <xm>9</xm>\n" +
-                "    <remark/>\n" +
-                "    <bm>2</bm>\n" +
-                "    <bm_name>测试部</bm_name>\n" +
-                "    <xm_name>朽木</xm_name>\n" +
-                "    <opinion/>\n" +
-                "  </kjsqsp>\n" +
-                "  <kjsqsp index=\"0\">\n" +
-                "    <date>2018-09-18</date>\n" +
-                "    <isAgree>R</isAgree>\n" +
-                "    <xm>11</xm>\n" +
-                "    <remark>d</remark>\n" +
-                "    <bm>2</bm>\n" +
-                "    <bm_name>测试部</bm_name>\n" +
-                "    <xm_name>小五</xm_name>\n" +
-                "    <opinion>ds</opinion>\n" +
-                "  </kjsqsp>\n" +
-                "</xmlData>";
-        List<Map<String,String>> reultMap =  getMapFromXmlData(xml);
+        try {
+//            System.out.println(getMapFromBpmnData(readContent("E://1.bpmn")));
+            readContent("E://1.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
     /**
      * 根据xmlData 解析数据
      *
@@ -98,7 +52,7 @@ public class XmlUtils {
         List<Map<String, String>> mapList = new ArrayList<>();
         Document document = null;
         try {
-            document = DocumentHelper.parseText(xmlData);
+            document = DocumentHelper.parseText(xmlData.trim());
         } catch (DocumentException e) {
             e.printStackTrace();
         }
@@ -110,12 +64,58 @@ public class XmlUtils {
                 Map<String, String> map = new HashMap<>();
                 // 得到二级节点下的节点列表
                 List<Element> elements = ele.elements();
-                for (Element element:elements){
-                    map.put(element.getName(),element.getStringValue());
+                for (Element element : elements) {
+                    map.put(element.getName(), element.getStringValue());
                 }
                 mapList.add(map);
             }
         }
         return mapList;
+    }
+
+    /**
+     * 根据xmlData 解析BPMN数据
+     *
+     * @param xmlData xmlData
+     * @return 解析后的数据
+     */
+    static String getMapFromBpmnData(String xmlData) {
+        Document document = null;
+        try {
+            document = DocumentHelper.parseText(xmlData.trim());
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+        if (document != null) {
+            // 得到根节点下的节点列表
+            List<Element> list = document.getRootElement().elements();
+            // 遍历二级节点
+            for (Element ele : list) {
+                if (ele.getQName().getQualifiedName().equals("process"))
+                    return ele.attribute("id").getValue();
+            }
+        }
+        return "";
+    }
+
+    private static String readContent(String file) throws IOException {
+        File f = new File(file);
+        StringBuilder stringBuilder = new StringBuilder();
+        if (f.exists() && f.isFile()) {
+            FileInputStream fileInputStream = new FileInputStream(f);
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                System.out.println(line);
+            }
+            byte[] bytes = new byte[1024];
+            for (int x = 0; x > -1; ) {
+                x = fileInputStream.read(bytes);
+                stringBuilder.append(new String(bytes, "GBK"));
+                bytes = new byte[1024];
+            }
+            fileInputStream.close();
+        }
+        return stringBuilder.toString();
     }
 }
