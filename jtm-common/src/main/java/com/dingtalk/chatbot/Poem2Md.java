@@ -16,12 +16,14 @@ public class Poem2Md {
         Origin origin = poemEntity.getData().getOrigin();
         message.add(MarkdownMessage.getHeaderText(1, origin.getTitle()));
         message.add(MarkdownMessage.getHeaderText(3, origin.getAuthor() + " " + origin.getDynasty()));
-        message.add(MarkdownMessage.getHeaderText(5, Arrays.toString(origin.getContent())));
+        message.add(MarkdownMessage.getBoldText(Arrays.toString(origin.getContent())));
         if (StringUtils.isNotEmpty(origin.getTranslate())) {
-            message.add(MarkdownMessage.getBoldText(origin.getTranslate()));
+            message.add("> " + origin.getTranslate());
         } else {
             message.add(MarkdownMessage.getBoldText("暂无翻译~"));
         }
+        message.add("  ");
+        message.add("![Paradise](http://s.cn.bing.net/az/hprichbg/rb/SchoolGirls_ZH-CN10666418108_1920x1080.jpg)");
         return message;
     }
 }
