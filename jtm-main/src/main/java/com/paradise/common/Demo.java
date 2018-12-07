@@ -1,18 +1,20 @@
 package com.paradise.common;
 
-import com.alibaba.fastjson.JSONObject;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Demo {
     public static void main(String[] args) {
-        Pojo p1 = new Pojo();
-        p1.setId("1");
-        p1.setName("p1");
-        Pojo p2 =p1;
-        JSONObject jsonObject = (JSONObject) JSONObject.toJSON(p1);
-        Pojo p3  = JSONObject.toJavaObject(jsonObject,Pojo.class);
-        System.out.println(p2);
-        p1.setId("11");
-        System.out.println(p2);
-        System.out.println(p3);
+        String s1 = "{guid=123456}";
+        String regex = "^\\{.*=\\w*}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher =  pattern.matcher(s1);
+        System.out.println(matcher.matches());
+        matcher.start();
+        matcher.end();
+        while (matcher.find()){
+            System.out.println(matcher.group());
+        }
+
     }
 }
